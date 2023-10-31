@@ -14,7 +14,8 @@ const parseTimestamp = (str) => {
 
 const result = timeMarkRows.reduce((acc, [project, timestampStr]) => {
     const timestamp = parseTimestamp(timestampStr);
-    const found = acc.find(item => item.project === project);
+    const dateKey = `${timestamp.getFullYear()}-${timestamp.getMonth() + 1}-${timestamp.getDate()}`; // Create a key for the date
+    const found = acc.find(item => item.project === project && item.date === dateKey);
     
     if (found) {
         // Calculate the difference from the last timestamp
@@ -29,7 +30,7 @@ const result = timeMarkRows.reduce((acc, [project, timestampStr]) => {
         }
         found.timestamps.push(timestampStr);
     } else {
-        acc.push({ project, timestamps: [timestampStr], totalMinutes: 0 });
+        acc.push({ project, date: dateKey, timestamps: [timestampStr], totalMinutes: 0 });
     }
     return acc;
 }, []);
@@ -42,8 +43,7 @@ result.forEach(item => {
     delete item.totalMinutes;
 });
 
-// Append the values to the current note
 tR += result
-	.map(mark => mark.project + ": **" + mark.sumOfDifferences + "**")
+	.map(mark => mark.project + " - " + mark.date + ": **" + mark.sumOfDifferences + "**")
 	.join('\n');
 %>
